@@ -1,0 +1,14 @@
+/app
+main.go
+/resources/
+/resource/
+/http/
+/config/
+logs/
+.idea
+.DS_Store
+/test/*.ini
+/test/*.xml
+.env
+release/*.service
+release/release
