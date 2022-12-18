@@ -82,6 +82,7 @@ func (b Bootstrap) Run() error {
 				"routes": b.app.GetRoutes(),
 			},
 		}
+		fmt.Println(b.config)
 	}
 	return b.app.Run(iris.Server(b.server), iris.WithConfiguration(*b.config))
 }
