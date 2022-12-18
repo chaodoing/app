@@ -1,6 +1,7 @@
 package boot
 
 import (
+	`encoding/json`
 	`fmt`
 	`github.com/gookit/goutil/fsutil`
 	`github.com/kataras/iris/v12`
@@ -82,7 +83,7 @@ func (b Bootstrap) Run() error {
 				"routes": b.app.GetRoutes(),
 			},
 		}
-		fmt.Println(b.config)
+		fmt.Println(json.MarshalIndent(b.config, "", "\t"))
 	}
 	return b.app.Run(iris.Server(b.server), iris.WithConfiguration(*b.config))
 }
