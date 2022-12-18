@@ -70,6 +70,7 @@ func (b Bootstrap) Run() error {
 			WriteTimeout:      time.Second * 30,
 		}
 	}
+	fmt.Println("[b.config]", b.config == nil)
 	if b.config == nil {
 		b.config = &iris.Configuration{
 			DisableStartupLog:   !strings.EqualFold(os.Getenv("ENV"), "development"),
