@@ -1,125 +1,105 @@
 package encrypt
 
 import (
-	`crypto`
+	`bytes`
 	`crypto/rand`
 	`crypto/rsa`
-	`crypto/sha256`
 	`crypto/x509`
+	`encoding/base64`
 	`encoding/pem`
-	`errors`
-	`fmt`
+	`github.com/gookit/goutil/fsutil`
 )
 
-type RSA struct{}
+// RSAEncrypt RSA加密
+type RSAEncrypt struct {
+	privateKey *rsa.PrivateKey
+	publicKey  *rsa.PublicKey
+}
 
-// GenRsaKey RSA公钥私钥产生
-func (RSA) GenRsaKey() (prvkey, pubkey []byte) {
-	// 生成私钥文件
-	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
+func publicKey(public string) (*rsa.PublicKey, error) {
+	buf := fsutil.GetContents(public)
+	block, _ := pem.Decode(buf)
+	publicKeyInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
 	if err != nil {
-		panic(err)
+		return nil, err
+	}
+	//类型断言
+	publicKey := publicKeyInterface.(*rsa.PublicKey)
+	return publicKey, nil
+}
+func privateKey(private string) (*rsa.PrivateKey, error) {
+	buf := fsutil.GetContents(private)
+	block, _ := pem.Decode(buf)
+	return x509.ParsePKCS1PrivateKey(block.Bytes)
+}
+func RSA(public, private string) (*RSAEncrypt, error) {
+	publicKey, err := publicKey(public)
+	if err != nil {
+		return nil, err
+	}
+	privateKey, err := privateKey(private)
+	if err != nil {
+		return nil, err
+	}
+	return &RSAEncrypt{
+		privateKey: privateKey,
+		publicKey:  publicKey,
+	}, nil
+}
+
+// PublicEncryption 公钥加密
+func (r *RSAEncrypt) PublicEncryption(data string) (encrypted string, err error) {
+	var encrypt []byte
+	encrypt, err = rsa.EncryptPKCS1v15(rand.Reader, r.publicKey, []byte(data))
+	if err != nil {
+		return
+	}
+	encrypted = base64.StdEncoding.EncodeToString(encrypt)
+	return
+}
+
+// PrivateDecryption 私钥解密
+func (r *RSAEncrypt) PrivateDecryption(data string) (decrypted string, err error) {
+	encryptedBytes, err := base64.StdEncoding.DecodeString(data)
+	if err != nil {
+		return
+	}
+	var decrypt []byte
+	decrypt, err = rsa.DecryptPKCS1v15(rand.Reader, r.privateKey, encryptedBytes)
+	decrypted = string(decrypt)
+	return
+}
+
+func GenerateKey(bits int) (public *bytes.Buffer, private *bytes.Buffer, err error) {
+	// 生成私钥文件
+	privateKey, err := rsa.GenerateKey(rand.Reader, bits)
+	if err != nil {
+		return nil, nil, err
 	}
 	derStream := x509.MarshalPKCS1PrivateKey(privateKey)
 	block := &pem.Block{
 		Type:  "RSA PRIVATE KEY",
 		Bytes: derStream,
 	}
-	prvkey = pem.EncodeToMemory(block)
+	private = new(bytes.Buffer)
+	err = pem.Encode(private, block)
+	if err != nil {
+		return nil, nil, err
+	}
+	// 生成公钥文件
 	publicKey := &privateKey.PublicKey
 	derPkix, err := x509.MarshalPKIXPublicKey(publicKey)
 	if err != nil {
-		panic(err)
+		return nil, nil, err
 	}
 	block = &pem.Block{
 		Type:  "PUBLIC KEY",
 		Bytes: derPkix,
 	}
-	pubkey = pem.EncodeToMemory(block)
-	return
-}
-
-// SignWithSha256 签名
-func (RSA) SignWithSha256(data []byte, keyBytes []byte) []byte {
-	h := sha256.New()
-	h.Write(data)
-	hashed := h.Sum(nil)
-	block, _ := pem.Decode(keyBytes)
-	if block == nil {
-		panic(errors.New("private key error"))
-	}
-	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	public = new(bytes.Buffer)
+	err = pem.Encode(public, block)
 	if err != nil {
-		fmt.Println("ParsePKCS8PrivateKey err", err)
-		panic(err)
+		return nil, nil, err
 	}
-	
-	signature, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, hashed)
-	if err != nil {
-		fmt.Printf("Error from signing: %s\n", err)
-		panic(err)
-	}
-	
-	return signature
-}
-
-// VerySignWithSha256 验证
-func (RSA) VerySignWithSha256(data, signData, keyBytes []byte) bool {
-	block, _ := pem.Decode(keyBytes)
-	if block == nil {
-		panic(errors.New("public key error"))
-	}
-	pubKey, err := x509.ParsePKIXPublicKey(block.Bytes)
-	if err != nil {
-		panic(err)
-	}
-	
-	hashed := sha256.Sum256(data)
-	err = rsa.VerifyPKCS1v15(pubKey.(*rsa.PublicKey), crypto.SHA256, hashed[:], signData)
-	if err != nil {
-		panic(err)
-	}
-	return true
-}
-
-// Encrypt 公钥加密
-func (RSA) Encrypt(data, keyBytes []byte) []byte {
-	// 解密pem格式的公钥
-	block, _ := pem.Decode(keyBytes)
-	if block == nil {
-		panic(errors.New("public key error"))
-	}
-	// 解析公钥
-	pubInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
-	if err != nil {
-		panic(err)
-	}
-	// 类型断言
-	pub := pubInterface.(*rsa.PublicKey)
-	// 加密
-	ciphertext, err := rsa.EncryptPKCS1v15(rand.Reader, pub, data)
-	if err != nil {
-		panic(err)
-	}
-	return ciphertext
-}
-
-// Decrypt 私钥解密
-func (RSA) Decrypt(ciphertext, keyBytes []byte) []byte {
-	// 获取私钥
-	block, _ := pem.Decode(keyBytes)
-	if block == nil {
-		panic(errors.New("private key error!"))
-	}
-	// 解析PKCS1格式的私钥
-	priv, err := x509.ParsePKCS1PrivateKey(block.Bytes)
-	if err != nil {
-		panic(err)
-	}
-	// 解密
-	data, err := rsa.DecryptPKCS1v15(rand.Reader, priv, ciphertext)
-	if err != nil {
-		panic(err)
-	}
-	return data
+	return public, private, nil
 }
