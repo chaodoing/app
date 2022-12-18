@@ -14,10 +14,11 @@ import (
 
 // RSAEncrypt RSA加密
 type RSAEncrypt struct {
-	privateKey *rsa.PrivateKey
-	publicKey  *rsa.PublicKey
+	PrivateKey *rsa.PrivateKey
+	PublicKey  *rsa.PublicKey
 }
 
+// publicKey 公钥文件
 func publicKey(public string) (*rsa.PublicKey, error) {
 	buf := fsutil.GetContents(public)
 	block, _ := pem.Decode(buf)
@@ -29,11 +30,44 @@ func publicKey(public string) (*rsa.PublicKey, error) {
 	publicKey := publicKeyInterface.(*rsa.PublicKey)
 	return publicKey, nil
 }
+
+// privateKey 私钥文件
 func privateKey(private string) (*rsa.PrivateKey, error) {
 	buf := fsutil.GetContents(private)
 	block, _ := pem.Decode(buf)
 	return x509.ParsePKCS1PrivateKey(block.Bytes)
 }
+
+// publicKeyString 公钥字符串
+func publicKeyString(publicKey string) (*rsa.PublicKey, error) {
+	publicKeyInterface, err := x509.ParsePKIXPublicKey([]byte(publicKey))
+	if err != nil {
+		return nil, err
+	}
+	return publicKeyInterface.(*rsa.PublicKey), nil
+}
+
+// privateKeyString 私钥字符串
+func privateKeyString(privateKey string) (*rsa.PrivateKey, error) {
+	return x509.ParsePKCS1PrivateKey([]byte(privateKey))
+}
+
+// RSAString RSA字符串
+func RSAString(publicKey, privateKey string) (*RSAEncrypt, error) {
+	public, err := publicKeyString(publicKey)
+	if err != nil {
+		return nil, err
+	}
+	private, err := privateKeyString(privateKey)
+	if err != nil {
+		return nil, err
+	}
+	return &RSAEncrypt{
+		PrivateKey: private,
+		PublicKey:  public,
+	}, nil
+}
+
 func RSA(public, private string) (*RSAEncrypt, error) {
 	publicKey, err := publicKey(public)
 	if err != nil {
@@ -44,8 +78,8 @@ func RSA(public, private string) (*RSAEncrypt, error) {
 		return nil, err
 	}
 	return &RSAEncrypt{
-		privateKey: privateKey,
-		publicKey:  publicKey,
+		PrivateKey: privateKey,
+		PublicKey:  publicKey,
 	}, nil
 }
 
@@ -57,7 +91,7 @@ func (r *RSAEncrypt) SignWithSha256(ciphertext string) (encrypted string, err er
 	)
 	h.Write(data)
 	hashed := h.Sum(nil)
-	signature, err := rsa.SignPKCS1v15(rand.Reader, r.privateKey, crypto.SHA256, hashed)
+	signature, err := rsa.SignPKCS1v15(rand.Reader, r.PrivateKey, crypto.SHA256, hashed)
 	if err != nil {
 		return "", err
 	}
@@ -74,7 +108,7 @@ func (r *RSAEncrypt) VerySignWithSha256(ciphertext, signText string) (success bo
 		return false, err
 	}
 	hashed := sha256.Sum256(data)
-	err = rsa.VerifyPKCS1v15(r.publicKey, crypto.SHA256, hashed[:], sign)
+	err = rsa.VerifyPKCS1v15(r.PublicKey, crypto.SHA256, hashed[:], sign)
 	if err != nil {
 		return false, err
 	}
@@ -84,7 +118,7 @@ func (r *RSAEncrypt) VerySignWithSha256(ciphertext, signText string) (success bo
 // PublicEncryption 公钥加密
 func (r *RSAEncrypt) PublicEncryption(data string) (encrypted string, err error) {
 	var encrypt []byte
-	encrypt, err = rsa.EncryptPKCS1v15(rand.Reader, r.publicKey, []byte(data))
+	encrypt, err = rsa.EncryptPKCS1v15(rand.Reader, r.PublicKey, []byte(data))
 	if err != nil {
 		return
 	}
@@ -99,7 +133,7 @@ func (r *RSAEncrypt) PrivateDecryption(data string) (decrypted string, err error
 		return
 	}
 	var decrypt []byte
-	decrypt, err = rsa.DecryptPKCS1v15(rand.Reader, r.privateKey, encryptedBytes)
+	decrypt, err = rsa.DecryptPKCS1v15(rand.Reader, r.PrivateKey, encryptedBytes)
 	decrypted = string(decrypt)
 	return
 }
