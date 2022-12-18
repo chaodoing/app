@@ -2,8 +2,10 @@ package encrypt
 
 import (
 	`bytes`
+	`crypto`
 	`crypto/rand`
 	`crypto/rsa`
+	`crypto/sha256`
 	`crypto/x509`
 	`encoding/base64`
 	`encoding/pem`
@@ -45,6 +47,38 @@ func RSA(public, private string) (*RSAEncrypt, error) {
 		privateKey: privateKey,
 		publicKey:  publicKey,
 	}, nil
+}
+
+// SignWithSha256 签名
+func (r *RSAEncrypt) SignWithSha256(ciphertext string) (encrypted string, err error) {
+	var (
+		data = []byte(ciphertext)
+		h    = sha256.New()
+	)
+	h.Write(data)
+	hashed := h.Sum(nil)
+	signature, err := rsa.SignPKCS1v15(rand.Reader, r.privateKey, crypto.SHA256, hashed)
+	if err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(signature), err
+}
+
+// VerySignWithSha256 验证
+func (r *RSAEncrypt) VerySignWithSha256(ciphertext, signText string) (success bool, e error) {
+	var (
+		data      = []byte(ciphertext)
+		sign, err = base64.StdEncoding.DecodeString(signText)
+	)
+	if err != nil {
+		return false, err
+	}
+	hashed := sha256.Sum256(data)
+	err = rsa.VerifyPKCS1v15(r.publicKey, crypto.SHA256, hashed[:], sign)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 // PublicEncryption 公钥加密
