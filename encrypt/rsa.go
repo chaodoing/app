@@ -9,6 +9,7 @@ import (
 	`crypto/x509`
 	`encoding/base64`
 	`encoding/pem`
+	`errors`
 	`github.com/gookit/goutil/fsutil`
 )
 
@@ -18,68 +19,50 @@ type RSAEncrypt struct {
 	PublicKey  *rsa.PublicKey
 }
 
-// publicKey 公钥文件
-func publicKey(public string) (*rsa.PublicKey, error) {
-	buf := fsutil.GetContents(public)
-	block, _ := pem.Decode(buf)
+// loaderKey 加载key文件
+func loaderKey(data interface{}) ([]byte, error) {
+	switch data.(type) {
+	case string:
+		var path = data.(string)
+		if fsutil.IsFile(path) && fsutil.FileExist(path) {
+			return fsutil.GetContents(path), nil
+		} else {
+			return []byte(path), nil
+		}
+	case []byte:
+		return data.([]byte), nil
+	}
+	return nil, errors.New("证书类型错误")
+}
+
+// certificate 证书解析
+func certificate(public, private []byte) (e *rsa.PublicKey, d *rsa.PrivateKey, err error) {
+	block, _ := pem.Decode(public)
 	publicKeyInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
 	if err != nil {
-		return nil, err
+		return
 	}
-	//类型断言
-	publicKey := publicKeyInterface.(*rsa.PublicKey)
-	return publicKey, nil
+	e = publicKeyInterface.(*rsa.PublicKey)
+	
+	block, _ = pem.Decode(private)
+	d, err = x509.ParsePKCS1PrivateKey(block.Bytes)
+	return
 }
 
-// privateKey 私钥文件
-func privateKey(private string) (*rsa.PrivateKey, error) {
-	buf := fsutil.GetContents(private)
-	block, _ := pem.Decode(buf)
-	return x509.ParsePKCS1PrivateKey(block.Bytes)
-}
-
-// publicKeyString 公钥字符串
-func publicKeyString(publicKey string) (*rsa.PublicKey, error) {
-	publicKeyInterface, err := x509.ParsePKIXPublicKey([]byte(publicKey))
+// RSA 初始化
+func RSA(public, private interface{}) (*RSAEncrypt, error) {
+	p, err := loaderKey(public)
 	if err != nil {
 		return nil, err
 	}
-	return publicKeyInterface.(*rsa.PublicKey), nil
-}
-
-// privateKeyString 私钥字符串
-func privateKeyString(privateKey string) (*rsa.PrivateKey, error) {
-	return x509.ParsePKCS1PrivateKey([]byte(privateKey))
-}
-
-// RSAString RSA字符串
-func RSAString(publicKey, privateKey string) (*RSAEncrypt, error) {
-	public, err := publicKeyString(publicKey)
+	v, err := loaderKey(private)
 	if err != nil {
 		return nil, err
 	}
-	private, err := privateKeyString(privateKey)
-	if err != nil {
-		return nil, err
-	}
+	PublicKey, PrivateKey, err := certificate(p, v)
 	return &RSAEncrypt{
-		PrivateKey: private,
-		PublicKey:  public,
-	}, nil
-}
-
-func RSA(public, private string) (*RSAEncrypt, error) {
-	publicKey, err := publicKey(public)
-	if err != nil {
-		return nil, err
-	}
-	privateKey, err := privateKey(private)
-	if err != nil {
-		return nil, err
-	}
-	return &RSAEncrypt{
-		PrivateKey: privateKey,
-		PublicKey:  publicKey,
+		PrivateKey: PrivateKey,
+		PublicKey:  PublicKey,
 	}, nil
 }
 
