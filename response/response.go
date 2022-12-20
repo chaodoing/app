@@ -31,9 +31,11 @@ func (r Response) renderHTML() (html string, err error) {
 		return
 	}
 	buf := new(bytes.Buffer)
+	theme := r.ctx.URLParamDefault("theme", "vs-dark")
 	err = tpl.Execute(buf, map[string]string{
 		"Title": "JSON",
 		"Json":  string(data),
+		"Theme": theme,
 	})
 	return buf.String(), err
 }
