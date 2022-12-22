@@ -8,6 +8,11 @@ import (
 	`os`
 )
 
+var (
+	InitMySQL = true
+	InitRedis = true
+)
+
 func Boot(conf string, isJson ...bool) Bootstrap {
 	var (
 		config *Configuration
@@ -25,11 +30,19 @@ func Boot(conf string, isJson ...bool) Bootstrap {
 	var container = Container{
 		conf: config,
 	}
-	container.db, err = container.MySQL()
-	if err != nil {
-		panic(err)
+	if InitMySQL {
+		container.db, err = container.MySQL()
+		if err != nil {
+			panic(err)
+		}
 	}
-	container.redis, err = container.Redis()
+	if InitRedis {
+		container.redis, err = container.Redis()
+		if err != nil {
+			panic(err)
+		}
+	}
+	
 	hero.Register(container)
 	app := iris.New()
 	app.Use(recover.New())
