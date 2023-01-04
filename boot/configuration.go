@@ -1,12 +1,13 @@
 package boot
 
 import (
-	`encoding/json`
-	`encoding/xml`
-	`fmt`
-	`github.com/go-ini/ini`
-	`os`
-	`strings`
+	"encoding/json"
+	"encoding/xml"
+	"fmt"
+	"os"
+	"strings"
+
+	"github.com/go-ini/ini"
 )
 
 type Configuration struct {
@@ -18,18 +19,18 @@ type Configuration struct {
 	} `json:"station" xml:"station" ini:"Station" field:"监听站点"` // Station 监听站点
 	Log struct {
 		Stdout    bool   `json:"stdout" xml:"stdout" ini:"Stdout" field:"输出到控制台"`          // Stdout 输出到控制台
-		Record    bool   `json:"record" xml:"record" ini:"Record" field:"记录到日志文件"`        // Record 记录到日志文件
+		Record    bool   `json:"record" xml:"record" ini:"Record" field:"记录到日志文件"`         // Record 记录到日志文件
 		Directory string `json:"directory" xml:"directory" ini:"Directory" field:"日志存储目录"` // Directory 日志存储目录
 	} `json:"log" xml:"log" ini:"Log" field:"日志配置"` // Log 日志配置
 	Database struct {
-		Host     string `json:"host" xml:"host" ini:"Host" field:"连接主机"`               // Host 连接主机
-		Port     uint16 `json:"port" xml:"port" ini:"Port" field:"连接端口"`               // Port 连接端口
+		Host     string `json:"host" xml:"host" ini:"Host" field:"连接主机"`              // Host 连接主机
+		Port     uint16 `json:"port" xml:"port" ini:"Port" field:"连接端口"`              // Port 连接端口
 		Db       string `json:"db" xml:"db" ini:"Db" field:"数据库名称"`                   // Db 数据库名称
 		Username string `json:"username" xml:"username" ini:"Username" field:"连接用户名"` // Username 连接用户名
-		Password string `json:"password" xml:"password" ini:"Password" field:"连接密码"`   // Password 连接密码
+		Password string `json:"password" xml:"password" ini:"Password" field:"连接密码"`  // Password 连接密码
 		Charset  string `json:"charset" xml:"charset" ini:"Charset" field:"连接字符集"`    // Charset 连接字符集
-		Record   string `json:"record" xml:"record" ini:"Record" field:"记录到日志文件"`   // Record 记录到日志文件
-		Level    int    `json:"level" xml:"level" ini:"Level"  field:"日志等级"`           // Level 日志等级
+		Record   string `json:"record" xml:"record" ini:"Record" field:"记录到日志文件"`     // Record 记录到日志文件
+		Level    int    `json:"level" xml:"level" ini:"Level"  field:"日志等级"`          // Level 日志等级
 	} `json:"database" xml:"database" field:"数据库配置"` // Database 数据库配置
 	Redis struct {
 		Host string `json:"host" xml:"host" ini:"Host"` // Host 连接主机
@@ -38,25 +39,25 @@ type Configuration struct {
 		Auth string `json:"auth" xml:"auth" ini:"Auth"` // Auth 连接密码
 		TTL  uint64 `json:"ttl" xml:"ttl" ini:"TTL"`    // TTL 缓存时长
 	} `json:"redis" xml:"redis" ini:"Redis"` // Redis 配置文件
-	
+
 	// Static 静态资源文件配置
 	Static struct {
 		Favicon   string `json:"favicon" xml:"favicon" ini:"Favicon"`       // Favicon 网站图标配置
 		Url       string `json:"url" xml:"url" ini:"Url"`                   // Url 访问路径
 		Directory string `json:"directory" xml:"directory" ini:"Directory"` // Directory 静态资源位置
 	} `json:"static" xml:"static" ini:"Static"`
-	
+
 	// Template 模板目录配置
 	Template struct {
 		Delimit struct {
 			Left  string `json:"left" xml:"left,attr" ini:"Left"`    // Left 左边变量分隔符号
 			Right string `json:"right" xml:"right,attr" ini:"Right"` // Right 右边变量分隔符号
-		} `json:"delimit" xml:"delimit" ini:"Template.Delimit"`             // Delimit 变量边界符号
+		} `json:"delimit" xml:"delimit" ini:"Template.Delimit"` // Delimit 变量边界符号
 		Directory string `json:"directory" xml:"directory" ini:"Directory"` // Directory 模板目录位置
 		Extension string `json:"extension" xml:"extension" ini:"Extension"` // Extension 模板文件扩展名称
 		Reload    bool   `json:"reload" xml:"reload" ini:"Reload"`          // Reload 每次都重新加载模板
 	} `json:"template" xml:"template" ini:"Template"`
-	
+
 	// Upload 上传文件配置
 	Upload struct {
 		Maximum   uint64 `json:"maximum" xml:"maximum" ini:"Maximum"`       // Maximum 允许上传的文件最大大小 单位 MB
@@ -67,7 +68,7 @@ type Configuration struct {
 
 // LoadEnv 加载环境变量
 func (c *Configuration) LoadEnv() *Configuration {
-	config, err := ini.Load(os.ExpandEnv("${DIR}/.env"))
+	config, err := ini.Load(os.ExpandEnv(".env"))
 	if err != nil {
 		return nil
 	}
@@ -79,6 +80,7 @@ func (c *Configuration) LoadEnv() *Configuration {
 }
 
 // Dialect 转换数据配置
+//
 //	@return schema=root:123.com@tcp(127.0.0.1:3306)/arrangement?charset=utf8mb4&parseTime=True&loc=Local
 func (c *Configuration) Dialect() (schema string) {
 	schema = fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=%v&parseTime=True&loc=Local", c.Database.Username, c.Database.Password, c.Database.Host, c.Database.Port, c.Database.Db, c.Database.Charset)

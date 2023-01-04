@@ -1,11 +1,12 @@
 package console
 
 import (
-	`github.com/chaodoing/app/assets`
-	`github.com/gookit/goutil/fsutil`
-	`github.com/urfave/cli`
-	`os`
-	`strings`
+	"os"
+	"strings"
+
+	"github.com/chaodoing/app/assets"
+	"github.com/gookit/goutil/fsutil"
+	"github.com/urfave/cli"
 )
 
 var Env = cli.Command{
@@ -35,7 +36,7 @@ var Env = cli.Command{
 				return
 			}
 		}
-		var f = "${DIR}/.env"
+		var f = ".env"
 		data, err := assets.Asset("service/env")
 		if err != nil {
 			return err
