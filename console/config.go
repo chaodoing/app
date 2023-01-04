@@ -1,8 +1,8 @@
 package console
 
 import (
-	`github.com/chaodoing/app/o`
-	`github.com/urfave/cli`
+	"github.com/chaodoing/app/o"
+	"github.com/urfave/cli"
 )
 
 var file string
@@ -10,8 +10,8 @@ var file string
 var Config = cli.Command{
 	Name:        "config",
 	ShortName:   "c",
-	Usage:       "生成Linux服务脚本",
-	Description: "生成Linux [.service] 格式服务脚本",
+	Usage:       "生成配置文件",
+	Description: "生成配置文件 -f [文件名称].xml",
 	Category:    "Frame",
 	Flags: []cli.Flag{
 		cli.StringFlag{
