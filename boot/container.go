@@ -1,20 +1,21 @@
 package boot
 
 import (
-	`errors`
-	`fmt`
-	`github.com/go-redis/redis`
-	`github.com/lestrrat-go/strftime`
-	`github.com/natefinch/lumberjack`
-	`gorm.io/driver/mysql`
-	`gorm.io/gorm`
-	`gorm.io/gorm/logger`
-	`io`
-	`log`
-	`os`
-	`path`
-	`strings`
-	`time`
+	"errors"
+	"fmt"
+	"io"
+	"log"
+	"os"
+	"path"
+	"strings"
+	"time"
+
+	"github.com/go-redis/redis"
+	"github.com/lestrrat-go/strftime"
+	"github.com/natefinch/lumberjack"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type Container struct {
@@ -27,6 +28,10 @@ func New(conf *Configuration) Container {
 	return Container{
 		conf: conf,
 	}
+}
+
+func (c Container) Config() *Configuration {
+	return c.conf
 }
 
 func (c Container) MySQL() (db *gorm.DB, err error) {
@@ -54,7 +59,7 @@ func (c Container) MySQL() (db *gorm.DB, err error) {
 		err = errors.New("数据库日志记录文件不能为空")
 		return
 	}
-	
+
 	flag := log.LstdFlags | log.Ldate | log.Ltime
 	record = logger.New(log.New(write, "", flag), logger.Config{
 		Colorful: false,
@@ -91,6 +96,7 @@ func (c Container) Redis() (rds *redis.Client, err error) {
 }
 
 // Log 日志文件存储驱动
+//
 //	@param string name 日志文件名称
 //	@param string directory 目录名称
 func (c Container) Log(name string) (drive *lumberjack.Logger, err error) {
