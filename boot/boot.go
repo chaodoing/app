@@ -1,11 +1,13 @@
 package boot
 
 import (
+	`github.com/gookit/goutil/envutil`
 	`github.com/kataras/iris/v12`
 	`github.com/kataras/iris/v12/hero`
 	`github.com/kataras/iris/v12/middleware/logger`
 	`github.com/kataras/iris/v12/middleware/recover`
 	`os`
+	`strings`
 )
 
 var (
@@ -47,12 +49,12 @@ func Boot(conf string, isJson ...bool) Bootstrap {
 	app := iris.New()
 	app.Use(recover.New())
 	app.Use(logger.New(logger.Config{
-		Status:  true,
-		IP:      true,
-		Method:  true,
-		Path:    true,
-		Query:   true,
-		Columns: true,
+		Status:     true,
+		IP:         true,
+		Method:     true,
+		Path:       true,
+		Query:      true,
+		TraceRoute: strings.EqualFold(envutil.Getenv("ENV", "development"), "development"),
 	}))
 	drive, err := container.Log("iris-%Y-%m-%d.log")
 	if err != nil {
