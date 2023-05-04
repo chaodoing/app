@@ -28,8 +28,10 @@ func (b Bootstrap) Server(server *http.Server) Bootstrap {
 	return b
 }
 
-func (b Bootstrap) Handle(handle Handle) Bootstrap {
-	handle(b.app)
+func (b Bootstrap) Handle(routers ...Handle) Bootstrap {
+	for _, router := range routers {
+		router(b.app)
+	}
 	return b
 }
 
