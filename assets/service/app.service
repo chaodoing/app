@@ -13,11 +13,11 @@ After=mysqld.service redis.service
 # LimitNOFILE=65535
 Type=simple
 User={{.Username}}
-Group={{.Usergroup}}
+Group={{.Group}}
 WorkingDirectory={{.Directory}}
 Environment=DIR={{.Directory}}
-Environment=ENV=production
-Environment=VERSION=v1.0.0
+Environment=ENV={{.Env}}
+Environment=VERSION={{.Version}}
 # Environment=ENV1=value1
 ExecStart={{.Execute}}
 Restart=always

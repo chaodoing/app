@@ -40,6 +40,9 @@ var Systemd = cli.Command{
 		}
 		buf := new(bytes.Buffer)
 		err = tpl.Execute(buf, sys)
+		if err != nil {
+			return err
+		}
 		_, err = fsutil.PutContents(file, buf.String())
 		return
 	},

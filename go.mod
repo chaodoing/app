@@ -6,13 +6,13 @@ require (
 	github.com/go-ini/ini v1.67.0
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/google/uuid v1.3.0
-	github.com/gookit/goutil v0.5.10
-	github.com/gookit/validate v1.4.4
+	github.com/gookit/goutil v0.6.8
 	github.com/kataras/iris/v12 v12.1.8
 	github.com/lestrrat-go/strftime v1.0.5
 	github.com/manifoldco/promptui v0.9.0
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/urfave/cli v1.22.5
+	golang.org/x/text v0.8.0
 	gorm.io/driver/mysql v1.3.2
 	gorm.io/gorm v1.23.2
 )
@@ -31,7 +31,7 @@ require (
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/gookit/filter v1.1.3 // indirect
+	github.com/gookit/color v1.5.3 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/imkira/go-interpol v1.1.0 // indirect
 	github.com/iris-contrib/blackfriday v2.0.0+incompatible // indirect
@@ -61,15 +61,18 @@ require (
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/smartystreets/goconvey v1.7.2 // indirect
+	github.com/stretchr/testify v1.8.0 // indirect
 	github.com/valyala/fasthttp v1.34.0 // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
+	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0 // indirect
 	github.com/yudai/gojsondiff v1.0.0 // indirect
 	github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82 // indirect
 	golang.org/x/crypto v0.0.0-20220214200702-86341886e292 // indirect
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
-	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/sync v0.1.0 // indirect
+	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/term v0.6.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/ini.v1 v1.51.1 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
