@@ -40,16 +40,15 @@ func (r Response) renderHTML() (html string, err error) {
 	return buf.String(), err
 }
 
-func (r Response) Xml() error {
-	r.ctx.Gzip(true)
-	_, err := r.ctx.XML(r.data, iris.XML{Indent: "\t", Prefix: ""})
-	return err
+func (r Response) Xml() (err error) {
+	//r.ctx.Gzip(true)
+	err = r.ctx.XML(r.data, iris.XML{Indent: "\t", Prefix: ""})
+	return
 }
 
-func (r Response) Json() error {
-	r.ctx.Gzip(true)
-	_, err := r.ctx.JSON(r.data, iris.JSON{Indent: "\t", Prefix: ""})
-	return err
+func (r Response) Json() (err error) {
+	err = r.ctx.JSON(r.data, iris.JSON{Indent: "\t", Prefix: ""})
+	return
 }
 
 func (r Response) Data(status uint32, message string, data interface{}) Response {
@@ -70,7 +69,6 @@ func (r Response) Send() (err error) {
 	if err != nil {
 		return err
 	}
-	r.ctx.Gzip(true)
 	r.ctx.Negotiation().JSON(r.data).XML(r.data).HTML(html).EncodingGzip()
 	_, err = r.ctx.Negotiate(nil)
 	return
