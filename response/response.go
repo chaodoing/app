@@ -90,7 +90,6 @@ func (r Response) O(ctx iris.Context, status uint32, message string, data interf
 	if err != nil {
 		log.Println(err)
 	}
-	
 }
 
 // Pagination 输出分页内容

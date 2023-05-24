@@ -72,7 +72,7 @@ Favicon   = ${DIR}/resources/template/favicon.ico
 ; 访问地址
 Url       = /static
 ; 实际存储位置
-Directory = ${DIR}/resource/template/static
+Directory = ${DIR}/resources/template/static
 
 ;;; 上传配置
 [Upload]

@@ -9,7 +9,7 @@ var file string
 
 var Config = cli.Command{
 	Name:        "config",
-	ShortName:   "c",
+	ShortName:   "conf",
 	Usage:       "生成配置文件",
 	Description: "生成配置文件 -f [文件名称].xml",
 	Category:    "Frame",

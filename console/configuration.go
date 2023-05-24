@@ -128,7 +128,7 @@ var Configuration = configuration{
 		Comment:   "静态目录配置文件",
 		Favicon:   String{"网站图标", "${DIR}/resources/template/favicon.ico"},
 		Url:       String{"访问地址", "/static"},
-		Directory: String{"实际存储位置", "${DIR}/resource/template/static"},
+		Directory: String{"实际存储位置", "${DIR}/resources/template/static"},
 	},
 	Template: Template{
 		Comment: "模板目录配置",

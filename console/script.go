@@ -9,7 +9,7 @@ import (
 	`html/template`
 )
 
-var Systemd = cli.Command{
+var Script = cli.Command{
 	Name:        "service",
 	ShortName:   "script",
 	Usage:       "生成Linux服务脚本",

@@ -3,15 +3,15 @@ package console
 import (
 	"os"
 	"strings"
-
+	
 	"github.com/chaodoing/app/assets"
 	"github.com/gookit/goutil/fsutil"
 	"github.com/urfave/cli"
 )
 
 var Env = cli.Command{
-	Name:        "env",
-	ShortName:   "e",
+	Name:        "environment",
+	ShortName:   "env",
 	Usage:       "环境变量配置",
 	Description: "生成环境变量文件.env",
 	Category:    "Frame",
