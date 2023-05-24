@@ -10,8 +10,8 @@ import (
 )
 
 var Systemd = cli.Command{
-	Name:        "systemd",
-	ShortName:   "s",
+	Name:        "service",
+	ShortName:   "script",
 	Usage:       "生成Linux服务脚本",
 	Description: "生成Linux [.service] 格式服务脚本",
 	Category:    "Frame",
