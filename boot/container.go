@@ -2,14 +2,14 @@ package boot
 
 import (
 	"errors"
-	"fmt"
+	`fmt`
 	"io"
 	"log"
 	"os"
 	"path"
 	"strings"
 	"time"
-
+	
 	"github.com/go-redis/redis"
 	"github.com/lestrrat-go/strftime"
 	"github.com/natefinch/lumberjack"
@@ -59,7 +59,7 @@ func (c Container) MySQL() (db *gorm.DB, err error) {
 		err = errors.New("数据库日志记录文件不能为空")
 		return
 	}
-
+	
 	flag := log.LstdFlags | log.Ldate | log.Ltime
 	record = logger.New(log.New(write, "", flag), logger.Config{
 		Colorful: false,
@@ -82,11 +82,19 @@ func (c Container) Redis() (rds *redis.Client, err error) {
 	if c.redis != nil {
 		return c.redis, nil
 	}
-	c.redis = redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%d", c.conf.Redis.Host, c.conf.Redis.Port),
-		Password: c.conf.Redis.Auth,
-		DB:       c.conf.Redis.Db,
-	})
+	if strings.EqualFold(c.conf.Redis.Auth, "") {
+		c.redis = redis.NewClient(&redis.Options{
+			Addr: fmt.Sprintf("%s:%d", c.conf.Redis.Host, c.conf.Redis.Port),
+			DB:   c.conf.Redis.Db,
+		})
+	} else {
+		c.redis = redis.NewClient(&redis.Options{
+			Addr:     fmt.Sprintf("%s:%d", c.conf.Redis.Host, c.conf.Redis.Port),
+			Password: c.conf.Redis.Auth,
+			DB:       c.conf.Redis.Db,
+		})
+	}
+	
 	var pong string
 	pong, err = c.redis.Ping().Result()
 	if err != nil || !strings.EqualFold(pong, "PONG") {
