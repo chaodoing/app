@@ -4,6 +4,7 @@ import (
 	`fmt`
 	`github.com/gookit/goutil/fsutil`
 	`github.com/kataras/iris/v12`
+	`github.com/kataras/iris/v12/core/router`
 	`net/http`
 	`os`
 	`strings`
@@ -53,7 +54,10 @@ func (b Bootstrap) Run() error {
 	}
 	// 静态目录
 	if fsutil.PathExist(b.container.conf.Static.Directory) {
-		b.app.HandleDir(b.container.conf.Static.Url, b.container.conf.Static.Directory)
+		b.app.HandleDir(b.container.conf.Static.Url, b.container.conf.Static.Directory, router.DirOptions{
+			IndexName: "index.html",
+			Compress:  true,
+		})
 	}
 	if fsutil.PathExist(b.container.conf.Upload.Directory) {
 		b.app.HandleDir(b.container.conf.Upload.Url, b.container.conf.Upload.Directory)
@@ -74,11 +78,10 @@ func (b Bootstrap) Run() error {
 	}
 	if b.config == nil {
 		b.config = &iris.Configuration{
-			DisableStartupLog:   !strings.EqualFold(os.Getenv("ENV"), "development"),
-			TimeFormat:          "2006-01-02 15:04:05",
-			Charset:             "UTF-8",
-			PostMaxMemory:       int64(b.container.conf.Upload.Maximum) << 20,
-			EnableOptimizations: true,
+			DisableStartupLog: !strings.EqualFold(os.Getenv("ENV"), "development"),
+			TimeFormat:        "2006-01-02 15:04:05",
+			Charset:           "UTF-8",
+			PostMaxMemory:     int64(b.container.conf.Upload.Maximum) << 20,
 			Other: map[string]interface{}{
 				"routes": b.app.GetRoutes(),
 			},
